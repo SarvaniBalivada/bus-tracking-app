@@ -6,7 +6,7 @@ import 'package:bus_tracking_app/models/bus_model.dart';
 import 'package:bus_tracking_app/utils/constants.dart';
 import 'package:bus_tracking_app/screens/admin/bus_management_screen.dart';
 import 'package:bus_tracking_app/screens/admin/real_time_monitoring_screen.dart';
-import 'package:bus_tracking_app/screens/admin/reports_screen.dart';
+
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -414,18 +414,6 @@ class AdminHomeScreen extends StatelessWidget {
                       title: 'Emergency Alerts',
                       icon: Icons.warning_amber,
                       onTap: () => _showEmergencyAlertsDialog(context, busProvider),
-                    ),
-                    _ActionCard(
-                      title: 'View Reports',
-                      icon: Icons.analytics,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ReportsScreen(),
-                          ),
-                        );
-                      },
                     ),
                   ],
                 ),
