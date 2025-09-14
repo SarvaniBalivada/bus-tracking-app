@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/demo_auth_provider.dart';
+import 'package:bus_tracking_app/providers/auth_provider.dart';
 import 'package:bus_tracking_app/utils/constants.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final authProvider = Provider.of<DemoAuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     bool success = false;
 
     if (_isLogin) {
@@ -249,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                         const SizedBox(height: 24),
                         // Submit Button
-                        Consumer<DemoAuthProvider>(
+                        Consumer<AuthProvider>(
                           builder: (context, auth, child) {
                             return SizedBox(
                               width: double.infinity,

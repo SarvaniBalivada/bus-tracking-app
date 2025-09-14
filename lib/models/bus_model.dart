@@ -7,6 +7,8 @@ class BusModel {
   final int capacity;
   final String status;
   final String routeId;
+  final String? fromStationId;
+  final String? toStationId;
   final double? currentLatitude;
   final double? currentLongitude;
   final int? currentPassengers;
@@ -14,6 +16,10 @@ class BusModel {
   final DateTime? lastUpdated;
   final String deviceId; // NodeMCU device identifier
   final bool emergencyAlert;
+  final DateTime? departureTime;
+  final DateTime? arrivalTime;
+  final double busFare;
+  final String routeDescription;
 
   BusModel({
     required this.id,
@@ -24,11 +30,17 @@ class BusModel {
     required this.status,
     required this.routeId,
     required this.deviceId,
+    required this.busFare,
+    required this.routeDescription,
+    this.fromStationId,
+    this.toStationId,
     this.currentLatitude,
     this.currentLongitude,
     this.currentPassengers,
     this.speed,
     this.lastUpdated,
+    this.departureTime,
+    this.arrivalTime,
     this.emergencyAlert = false,
   });
 
@@ -42,12 +54,22 @@ class BusModel {
       status: map['status'] ?? 'inactive',
       routeId: map['routeId'] ?? '',
       deviceId: map['deviceId'] ?? '',
+      busFare: map['busFare']?.toDouble() ?? 0.0,
+      routeDescription: map['routeDescription'] ?? '',
+      fromStationId: map['fromStationId'],
+      toStationId: map['toStationId'],
       currentLatitude: map['currentLatitude']?.toDouble(),
       currentLongitude: map['currentLongitude']?.toDouble(),
       currentPassengers: map['currentPassengers'],
       speed: map['speed']?.toDouble(),
-      lastUpdated: map['lastUpdated'] != null 
+      lastUpdated: map['lastUpdated'] != null
           ? DateTime.parse(map['lastUpdated'])
+          : null,
+      departureTime: map['departureTime'] != null
+          ? DateTime.parse(map['departureTime'])
+          : null,
+      arrivalTime: map['arrivalTime'] != null
+          ? DateTime.parse(map['arrivalTime'])
           : null,
       emergencyAlert: map['emergencyAlert'] ?? false,
     );
@@ -62,11 +84,17 @@ class BusModel {
       'status': status,
       'routeId': routeId,
       'deviceId': deviceId,
+      'busFare': busFare,
+      'routeDescription': routeDescription,
+      'fromStationId': fromStationId,
+      'toStationId': toStationId,
       'currentLatitude': currentLatitude,
       'currentLongitude': currentLongitude,
       'currentPassengers': currentPassengers,
       'speed': speed,
       'lastUpdated': lastUpdated?.toIso8601String(),
+      'departureTime': departureTime?.toIso8601String(),
+      'arrivalTime': arrivalTime?.toIso8601String(),
       'emergencyAlert': emergencyAlert,
     };
   }
@@ -80,6 +108,10 @@ class BusModel {
     String? status,
     String? routeId,
     String? deviceId,
+    double? busFare,
+    String? routeDescription,
+    String? fromStationId,
+    String? toStationId,
     double? currentLatitude,
     double? currentLongitude,
     int? currentPassengers,
@@ -96,6 +128,10 @@ class BusModel {
       status: status ?? this.status,
       routeId: routeId ?? this.routeId,
       deviceId: deviceId ?? this.deviceId,
+      busFare: busFare ?? this.busFare,
+      routeDescription: routeDescription ?? this.routeDescription,
+      fromStationId: fromStationId ?? this.fromStationId,
+      toStationId: toStationId ?? this.toStationId,
       currentLatitude: currentLatitude ?? this.currentLatitude,
       currentLongitude: currentLongitude ?? this.currentLongitude,
       currentPassengers: currentPassengers ?? this.currentPassengers,
@@ -109,7 +145,7 @@ class BusModel {
   
   bool get isActive => status == 'active';
   
-  String get passengerInfo => currentPassengers != null 
-      ? '$currentPassengers / $capacity passengers'
+  String get passengerInfo => currentPassengers != null
+      ? '${currentPassengers!} / $capacity passengers'
       : 'Capacity: $capacity';
 }

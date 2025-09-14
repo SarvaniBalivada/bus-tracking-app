@@ -9,12 +9,14 @@ class DemoBusProvider extends ChangeNotifier {
   BusModel? _selectedBus;
   bool _isLoading = false;
   String? _error;
+  final Set<String> _subscribedBusIds = <String>{};
 
   List<BusModel> get buses => _buses;
   List<StationModel> get stations => _stations;
   BusModel? get selectedBus => _selectedBus;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  bool isSubscribed(String busId) => _subscribedBusIds.contains(busId);
 
   // Get active buses only
   List<BusModel> get activeBuses => _buses.where((bus) => bus.isActive).toList();
@@ -40,6 +42,12 @@ class DemoBusProvider extends ChangeNotifier {
           status: BusStatus.active,
           routeId: 'route1',
           deviceId: 'ESP32_001',
+          busFare: 25.0,
+          routeDescription: 'Airport ↔ Central Station',
+          fromStationId: 'station2', // Airport Terminal
+          toStationId: 'station1', // Central Bus Station
+          departureTime: DateTime.now().add(const Duration(minutes: 10)),
+          arrivalTime: DateTime.now().add(const Duration(hours: 1, minutes: 5)),
           currentLatitude: 28.6139,
           currentLongitude: 77.2090,
           currentPassengers: 25,
@@ -55,6 +63,12 @@ class DemoBusProvider extends ChangeNotifier {
           status: BusStatus.active,
           routeId: 'route2',
           deviceId: 'ESP32_002',
+          busFare: 18.0,
+          routeDescription: 'Railway ↔ Central Station',
+          fromStationId: 'station3', // Railway Station
+          toStationId: 'station1', // Central Bus Station
+          departureTime: DateTime.now().add(const Duration(minutes: 20)),
+          arrivalTime: DateTime.now().add(const Duration(hours: 1, minutes: 20)),
           currentLatitude: 28.6129,
           currentLongitude: 77.2295,
           currentPassengers: 18,
@@ -70,6 +84,10 @@ class DemoBusProvider extends ChangeNotifier {
           status: BusStatus.maintenance,
           routeId: 'route3',
           deviceId: 'ESP32_003',
+          busFare: 20.0,
+          routeDescription: 'Suburb ↔ City Center',
+          fromStationId: 'station3', // Railway Station (as example)
+          toStationId: 'station1', // Central Bus Station
         ),
       ];
       
@@ -197,6 +215,15 @@ class DemoBusProvider extends ChangeNotifier {
 
   void selectBus(BusModel? bus) {
     _selectedBus = bus;
+    notifyListeners();
+  }
+
+  void toggleSubscription(String busId) {
+    if (_subscribedBusIds.contains(busId)) {
+      _subscribedBusIds.remove(busId);
+    } else {
+      _subscribedBusIds.add(busId);
+    }
     notifyListeners();
   }
 

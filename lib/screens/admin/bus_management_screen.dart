@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/demo_bus_provider.dart';
+import 'package:bus_tracking_app/providers/bus_provider.dart';
 import 'package:bus_tracking_app/models/bus_model.dart';
+import 'package:bus_tracking_app/models/station_model.dart';
 import 'package:bus_tracking_app/utils/constants.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -14,359 +15,491 @@ class BusManagementScreen extends StatefulWidget {
 
 class _BusManagementScreenState extends State<BusManagementScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _busIdController = TextEditingController();
   final _busNumberController = TextEditingController();
   final _driverNameController = TextEditingController();
   final _driverPhoneController = TextEditingController();
   final _capacityController = TextEditingController();
-  final _deviceIdController = TextEditingController();
   final _routeIdController = TextEditingController();
-  
-  String _selectedStatus = BusStatus.inactive;
+  final _deviceIdController = TextEditingController();
+  final _busFareController = TextEditingController();
+  final _routeDescriptionController = TextEditingController();
+  final _fromStationController = TextEditingController();
+  final _toStationController = TextEditingController();
+  String _status = BusStatus.active;
   BusModel? _editingBus;
+  bool _isEditing = false;
 
   @override
   void dispose() {
+    _busIdController.dispose();
     _busNumberController.dispose();
     _driverNameController.dispose();
     _driverPhoneController.dispose();
     _capacityController.dispose();
-    _deviceIdController.dispose();
     _routeIdController.dispose();
+    _deviceIdController.dispose();
+    _busFareController.dispose();
+    _routeDescriptionController.dispose();
+    _fromStationController.dispose();
+    _toStationController.dispose();
     super.dispose();
   }
 
-  void _clearForm() {
-    _busNumberController.clear();
-    _driverNameController.clear();
-    _driverPhoneController.clear();
-    _capacityController.clear();
-    _deviceIdController.clear();
-    _routeIdController.clear();
-    _selectedStatus = BusStatus.inactive;
-    _editingBus = null;
+  void _addBus() {
+    if (_formKey.currentState!.validate()) {
+      final bus = BusModel(
+        id: _busIdController.text,
+        busNumber: _busNumberController.text,
+        driverName: _driverNameController.text,
+        driverPhone: _driverPhoneController.text,
+        capacity: int.parse(_capacityController.text),
+        status: _status,
+        routeId: _routeIdController.text,
+        deviceId: _deviceIdController.text,
+        busFare: double.parse(_busFareController.text),
+        routeDescription: _routeDescriptionController.text,
+        fromStationId: _fromStationController.text,
+        toStationId: _toStationController.text,
+        currentLatitude: null,
+        currentLongitude: null,
+        emergencyAlert: false,
+      );
+      Provider.of<BusProvider>(context, listen: false).addBus(bus);
+      Fluttertoast.showToast(msg: 'Bus added successfully');
+      _clearForm();
+    }
+  }
+
+  void _updateBus() {
+    if (_formKey.currentState!.validate() && _editingBus != null) {
+      final updatedBus = _editingBus!.copyWith(
+        busNumber: _busNumberController.text,
+        driverName: _driverNameController.text,
+        driverPhone: _driverPhoneController.text,
+        capacity: int.parse(_capacityController.text),
+        status: _status,
+        routeId: _routeIdController.text,
+        deviceId: _deviceIdController.text,
+        busFare: double.parse(_busFareController.text),
+        routeDescription: _routeDescriptionController.text,
+        fromStationId: _fromStationController.text,
+        toStationId: _toStationController.text,
+      );
+      Provider.of<BusProvider>(context, listen: false).updateBus(updatedBus);
+      Fluttertoast.showToast(msg: 'Bus updated successfully');
+      _clearForm();
+      setState(() {
+        _editingBus = null;
+        _isEditing = false;
+      });
+    }
   }
 
   void _editBus(BusModel bus) {
     setState(() {
       _editingBus = bus;
-      _busNumberController.text = bus.busNumber;
-      _driverNameController.text = bus.driverName;
-      _driverPhoneController.text = bus.driverPhone;
-      _capacityController.text = bus.capacity.toString();
-      _deviceIdController.text = bus.deviceId;
-      _routeIdController.text = bus.routeId;
-      _selectedStatus = bus.status;
+      _isEditing = true;
     });
+
+    _busIdController.text = bus.id;
+    _busNumberController.text = bus.busNumber;
+    _driverNameController.text = bus.driverName;
+    _driverPhoneController.text = bus.driverPhone;
+    _capacityController.text = bus.capacity.toString();
+    _routeIdController.text = bus.routeId;
+    _deviceIdController.text = bus.deviceId;
+    _busFareController.text = bus.busFare.toString();
+    _routeDescriptionController.text = bus.routeDescription;
+    _fromStationController.text = bus.fromStationId ?? '';
+    _toStationController.text = bus.toStationId ?? '';
+    _status = bus.status;
   }
 
-  Future<void> _saveBus() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final busProvider = Provider.of<DemoBusProvider>(context, listen: false);
-    
-    final bus = BusModel(
-      id: _editingBus?.id ?? '',
-      busNumber: _busNumberController.text.trim(),
-      driverName: _driverNameController.text.trim(),
-      driverPhone: _driverPhoneController.text.trim(),
-      capacity: int.parse(_capacityController.text),
-      status: _selectedStatus,
-      routeId: _routeIdController.text.trim(),
-      deviceId: _deviceIdController.text.trim(),
-    );
-
-    bool success;
-    if (_editingBus != null) {
-      success = await busProvider.updateBus(bus);
-    } else {
-      success = await busProvider.addBus(bus);
-    }
-
-    if (success) {
-      Fluttertoast.showToast(
-        msg: _editingBus != null ? 'Bus updated successfully!' : 'Bus added successfully!',
-      );
-      _clearForm();
-    } else {
-      Fluttertoast.showToast(
-        msg: busProvider.error ?? 'Failed to save bus',
-      );
-    }
+  void _clearForm() {
+    _busIdController.clear();
+    _busNumberController.clear();
+    _driverNameController.clear();
+    _driverPhoneController.clear();
+    _capacityController.clear();
+    _routeIdController.clear();
+    _deviceIdController.clear();
+    _busFareController.clear();
+    _routeDescriptionController.clear();
+    _fromStationController.clear();
+    _toStationController.clear();
+    setState(() {
+      _status = BusStatus.active;
+      _editingBus = null;
+      _isEditing = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final busProvider = Provider.of<BusProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bus Management'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              Provider.of<DemoBusProvider>(context, listen: false).loadBuses();
-            },
-          ),
-        ],
+        title: const Text(AppStrings.adminDashboard),
+        backgroundColor: AppColors.primaryColor,
       ),
-      body: Column(
-        children: [
-          // Bus Form
-          Card(
-            margin: const EdgeInsets.all(AppDimensions.margin),
-            child: Padding(
-              padding: const EdgeInsets.all(AppDimensions.padding),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Text(
-                      _editingBus != null ? 'Edit Bus' : 'Add New Bus',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _busNumberController,
-                            decoration: const InputDecoration(
-                              labelText: 'Bus Number',
-                              border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppDimensions.padding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditing ? 'Edit Bus' : 'Add New Bus',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: AppDimensions.margin),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(AppDimensions.padding),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _busIdController,
+                              decoration: const InputDecoration(labelText: 'Bus ID'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a bus ID';
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter bus number';
-                              }
-                              return null;
-                            },
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _capacityController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: 'Capacity',
-                              border: OutlineInputBorder(),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _busNumberController,
+                              decoration: const InputDecoration(labelText: 'Bus Number'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a bus number';
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter capacity';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _driverNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Driver Name',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter driver name';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _driverPhoneController,
-                            keyboardType: TextInputType.phone,
-                            decoration: const InputDecoration(
-                              labelText: 'Driver Phone',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter driver phone';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _deviceIdController,
-                            decoration: const InputDecoration(
-                              labelText: 'Device ID (NodeMCU)',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter device ID';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _routeIdController,
-                            decoration: const InputDecoration(
-                              labelText: 'Route ID',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter route ID';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedStatus,
-                      decoration: const InputDecoration(
-                        labelText: 'Status',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: BusStatus.active,
-                          child: Text('Active'),
-                        ),
-                        DropdownMenuItem(
-                          value: BusStatus.inactive,
-                          child: Text('Inactive'),
-                        ),
-                        DropdownMenuItem(
-                          value: BusStatus.maintenance,
-                          child: Text('Maintenance'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _selectedStatus = value);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _saveBus,
-                            child: Text(_editingBus != null ? 'Update Bus' : 'Add Bus'),
-                          ),
-                        ),
-                        if (_editingBus != null) ...[
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: _clearForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey,
-                            ),
-                            child: const Text('Cancel'),
                           ),
                         ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Bus List
-          Expanded(
-            child: Consumer<DemoBusProvider>(
-              builder: (context, busProvider, child) {
-                if (busProvider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                
-                if (busProvider.buses.isEmpty) {
-                  return const Center(child: Text('No buses found'));
-                }
-                
-                return ListView.builder(
-                  padding: const EdgeInsets.all(AppDimensions.padding),
-                  itemCount: busProvider.buses.length,
-                  itemBuilder: (context, index) {
-                    final bus = busProvider.buses[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: bus.status == BusStatus.active
-                              ? AppColors.success
-                              : bus.status == BusStatus.maintenance
-                                  ? AppColors.warning
-                                  : AppColors.textSecondary,
-                          child: const Icon(Icons.directions_bus, color: Colors.white),
-                        ),
-                        title: Text('Bus ${bus.busNumber}'),
-                        subtitle: Text('${bus.driverName} • ${bus.passengerInfo}'),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              onTap: () => _editBus(bus),
-                              child: const ListTile(
-                                leading: Icon(Icons.edit),
-                                title: Text('Edit'),
-                              ),
-                            ),
-                            PopupMenuItem(
-                              onTap: () async {
-                                final confirmed = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Delete Bus'),
-                                    content: Text('Are you sure you want to delete Bus ${bus.busNumber}?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.of(context).pop(false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.of(context).pop(true),
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                                
-                                if (confirmed == true) {
-                                  final success = await busProvider.deleteBus(bus.id);
-                                  if (success) {
-                                    Fluttertoast.showToast(msg: 'Bus deleted successfully');
-                                  }
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _driverNameController,
+                              decoration: const InputDecoration(labelText: 'Driver Name'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a driver name';
                                 }
+                                return null;
                               },
-                              child: const ListTile(
-                                leading: Icon(Icons.delete, color: Colors.red),
-                                title: Text('Delete'),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _driverPhoneController,
+                              decoration: const InputDecoration(labelText: 'Driver Phone'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a driver phone';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _capacityController,
+                              decoration: const InputDecoration(labelText: 'Capacity'),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter capacity';
+                                }
+                                if (int.tryParse(value) == null) {
+                                  return 'Please enter a valid number';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _busFareController,
+                              decoration: const InputDecoration(labelText: 'Bus Fare'),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a bus fare';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Please enter a valid number';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _routeIdController,
+                              decoration: const InputDecoration(labelText: 'Route ID'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a route ID';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _deviceIdController,
+                              decoration: const InputDecoration(labelText: 'Device ID'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a device ID';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            controller: _routeDescriptionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Route Description',
+                              hintText: 'Example: Bhimavaram -> Vizag -> Tekkali',
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a route description';
+                              }
+                              if (!value.contains('->')) {
+                                return 'Please use "->" to separate intermediate stations';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.shade200),
+                            ),
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '📝 Route Description Guide:',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  '• Only intermediate stations: Station A -> Station B -> Station C',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  '• Example: "Bhimavaram -> Vizag -> Tekkali"',
+                                  style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  '• From/To stations come from the station fields above',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  '• Timeline will show: From → Intermediates → To',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _fromStationController,
+                              decoration: const InputDecoration(labelText: 'From Station'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter from station';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _toStationController,
+                              decoration: const InputDecoration(labelText: 'To Station'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter to station';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _status,
+                        items: [
+                          BusStatus.active,
+                          BusStatus.inactive,
+                          BusStatus.maintenance,
+                          BusStatus.emergency,
+                        ].map((status) {
+                          return DropdownMenuItem(
+                            value: status,
+                            child: Text(status),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _status = value ?? BusStatus.active;
+                          });
+                        },
+                        decoration: const InputDecoration(labelText: 'Status'),
+                      ),
+                      const SizedBox(height: AppDimensions.margin),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _isEditing ? _updateBus : _addBus,
+                              child: Text(_isEditing ? 'Update Bus' : 'Add Bus'),
+                            ),
+                          ),
+                          if (_isEditing) ...[
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: _clearForm,
+                                child: const Text('Cancel'),
                               ),
                             ),
                           ],
-                        ),
+                        ],
                       ),
-                    );
-                  },
-                );
-              },
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: AppDimensions.margin),
+            const Text(
+              'Existing Buses',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: AppDimensions.margin),
+            SizedBox(
+              height: 400, // Fixed height for the list
+              child: ListView.builder(
+                itemCount: busProvider.buses.length,
+                itemBuilder: (context, index) {
+                  final bus = busProvider.buses[index];
+
+                  // Get station names from IDs
+                  final fromStation = busProvider.stations.firstWhere(
+                    (station) => station.id == bus.fromStationId,
+                    orElse: () => StationModel(
+                      id: '',
+                      name: bus.fromStationId ?? 'Unknown',
+                      address: '',
+                      latitude: 0,
+                      longitude: 0,
+                      routeIds: [],
+                      createdAt: DateTime.now(),
+                    ),
+                  );
+
+                  final toStation = busProvider.stations.firstWhere(
+                    (station) => station.id == bus.toStationId,
+                    orElse: () => StationModel(
+                      id: '',
+                      name: bus.toStationId ?? 'Unknown',
+                      address: '',
+                      latitude: 0,
+                      longitude: 0,
+                      routeIds: [],
+                      createdAt: DateTime.now(),
+                    ),
+                  );
+
+                  return Card(
+                    child: ListTile(
+                      title: Text('${fromStation.name} → ${toStation.name}'),
+                      subtitle: Text(
+                        [
+                          'Bus: ${bus.busNumber}',
+                          'Route: ${bus.routeDescription}',
+                          'Status: ${bus.status}',
+                          'Fare: ₹${bus.busFare.toStringAsFixed(0)}',
+                          'Capacity: ${bus.capacity}',
+                        ].join(' • '),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            tooltip: 'Edit Bus',
+                            onPressed: () => _editBus(bus),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            tooltip: 'Delete Bus',
+                            onPressed: () {
+                              busProvider.deleteBus(bus.id);
+                              Fluttertoast.showToast(msg: 'Bus removed');
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

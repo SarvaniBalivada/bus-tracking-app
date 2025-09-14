@@ -44,21 +44,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WEB_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
-    measurementId: 'YOUR_MEASUREMENT_ID',
+    apiKey: 'AIzaSyAK9IWga-AK_bN_ubrl00MMIeON-K18Sg8',
+    appId: '1:974486354046:web:b3fd9123b57780cf6c002f',
+    messagingSenderId: '974486354046',
+    projectId: 'transport-297a3',
+    authDomain: 'transport-297a3.firebaseapp.com',
+    storageBucket: 'transport-297a3.firebasestorage.app',
+    measurementId: 'G-21Z8E6D9KQ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyBgg_QjmkYQSvgAfQfJkX7lBxsoMcj_9jk',
+    appId: '1:974486354046:android:1eb60dd5294813e26c002f',
+    messagingSenderId: '974486354046',
+    projectId: 'transport-297a3',
+    storageBucket: 'transport-297a3.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
