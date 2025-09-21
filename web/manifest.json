@@ -1,11 +1,11 @@
 {
-    "name": "bus_tracking_app",
-    "short_name": "bus_tracking_app",
+    "name": "OmniTrack",
+    "short_name": "OmniTrack",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "OmniTrack - Real-time bus tracking system with admin and user interfaces.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

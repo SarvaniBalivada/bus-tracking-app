@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/models/station_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/models/station_model.dart';
+import 'package:omnitrack/utils/constants.dart';
 
 class StationManagementScreen extends StatefulWidget {
   const StationManagementScreen({super.key});

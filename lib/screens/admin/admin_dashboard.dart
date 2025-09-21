@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/auth_provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
-import 'package:bus_tracking_app/screens/admin/bus_management_screen.dart';
-import 'package:bus_tracking_app/screens/admin/real_time_monitoring_screen.dart';
+import 'package:omnitrack/providers/auth_provider.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/utils/constants.dart';
+import 'package:omnitrack/screens/admin/bus_management_screen.dart';
+import 'package:omnitrack/screens/admin/real_time_monitoring_screen.dart';
 
 
 class AdminDashboard extends StatefulWidget {
@@ -141,7 +141,7 @@ class AdminHomeScreen extends StatelessWidget {
                     return DropdownMenuItem<BusModel>(
                       value: bus,
                       child: Text(
-                        '${bus.busNumber} - ${bus.driverName} (${busProvider.getStationName(bus.fromStationId ?? '')} → ${busProvider.getStationName(bus.toStationId ?? '')})',
+                        '${bus.busNumber} - ${bus.driverName}',
                       ),
                     );
                   }).toList(),
@@ -264,9 +264,7 @@ class AdminHomeScreen extends StatelessWidget {
                               ),
                               subtitle: Text(
                                 'Driver: ${bus.driverName}\n'
-                                'Phone: ${bus.driverPhone}\n'
-                                'Location: ${bus.currentLatitude?.toStringAsFixed(4)}, '
-                                '${bus.currentLongitude?.toStringAsFixed(4)}',
+                                'Phone: ${bus.driverPhone}',
                               ),
                               trailing: ElevatedButton(
                                 onPressed: () async {
@@ -342,80 +340,92 @@ class AdminHomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: [
-                    _StatCard(
-                      title: 'Total Buses',
-                      value: busProvider.buses.length.toString(),
-                      icon: Icons.directions_bus,
-                      color: AppColors.primaryColor,
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BusManagementScreen(),
+                        ),
+                      ),
+                      child: _StatCard(
+                        title: 'Total Buses',
+                        value: busProvider.buses.length.toString(),
+                        icon: Icons.directions_bus,
+                        color: AppColors.primaryColor,
+                      ),
                     ),
-                    _StatCard(
-                      title: 'Active Buses',
-                      value: busProvider.activeBuses.length.toString(),
-                      icon: Icons.directions_bus_filled,
-                      color: AppColors.success,
-                    ),
-                    _StatCard(
-                      title: 'Total Stations',
-                      value: busProvider.stations.length.toString(),
-                      icon: Icons.location_on,
-                      color: AppColors.warning,
-                    ),
-                    _StatCard(
-                      title: 'Emergency Alerts',
-                      value: busProvider.buses
-                          .where((bus) => bus.emergencyAlert)
-                          .length
-                          .toString(),
-                      icon: Icons.warning,
-                      color: AppColors.error,
+                    GestureDetector(
+                      onTap: () => _showEmergencyAlertsDialog(context, busProvider),
+                      child: _StatCard(
+                        title: 'Emergency Alerts',
+                        value: busProvider.buses
+                            .where((bus) => bus.emergencyAlert)
+                            .length
+                            .toString(),
+                        icon: Icons.warning,
+                        color: AppColors.error,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Quick Actions',
+                  'Alert Summary',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
                 const SizedBox(height: 16),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  children: [
-                    _ActionCard(
-                      title: 'Add New Bus',
-                      icon: Icons.add_circle,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BusManagementScreen(),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Active Emergency Alerts: ${busProvider.buses.where((bus) => bus.emergencyAlert).length}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (busProvider.buses.where((bus) => bus.emergencyAlert).isNotEmpty) ...[
+                        const Text(
+                          'Alert Details:',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        ...busProvider.buses.where((bus) => bus.emergencyAlert).map((bus) =>
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.warning, color: Colors.red, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Bus ${bus.busNumber} - ${bus.driverName}',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                    ),
-                    _ActionCard(
-                      title: 'Monitor Buses',
-                      icon: Icons.monitor,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RealTimeMonitoringScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    _ActionCard(
-                      title: 'Emergency Alerts',
-                      icon: Icons.warning_amber,
-                      onTap: () => _showEmergencyAlertsDialog(context, busProvider),
-                    ),
-                  ],
+                        ).toList(),
+                      ] else ...[
+                        const Text(
+                          'No active alerts',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ],
             ),

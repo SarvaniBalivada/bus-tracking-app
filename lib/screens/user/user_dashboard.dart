@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/auth_provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
-import 'package:bus_tracking_app/screens/user/bus_tracking_screen.dart';
-import 'package:bus_tracking_app/screens/user/bus_list_screen.dart';
-import 'package:bus_tracking_app/screens/user/map_screen.dart';
-import 'package:bus_tracking_app/screens/user/bus_route_search_screen.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/models/station_model.dart';
+import 'package:omnitrack/providers/auth_provider.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/utils/constants.dart';
+import 'package:omnitrack/screens/user/bus_tracking_screen.dart';
+import 'package:omnitrack/screens/user/bus_list_screen.dart';
+import 'package:omnitrack/screens/user/map_screen.dart';
+import 'package:omnitrack/screens/user/bus_route_search_screen.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/models/station_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -42,6 +43,7 @@ class _UserDashboardState extends State<UserDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.userDashboard),
+        centerTitle: true,
         actions: [
           Consumer<AuthProvider>(
             builder: (context, auth, _) {
@@ -112,6 +114,36 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   TextEditingController _toController = TextEditingController();
   String? _selectedFromStation;
   String? _selectedToStation;
+  List<Map<String, String>> recentSearches = [];
+  bool _searchesLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_searchesLoaded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadRecentSearches();
+        _searchesLoaded = true;
+      });
+    }
+  }
+
+  Future<void> _loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final searches = prefs.getStringList('recent_searches') ?? [];
+    setState(() {
+      recentSearches = searches.map((s) {
+        final parts = s.split('|');
+        return {'from': parts[0], 'to': parts[1]};
+      }).toList();
+    });
+  }
+
+  Future<void> _saveRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final searches = recentSearches.map((s) => '${s['from']}|${s['to']}').toList();
+    await prefs.setStringList('recent_searches', searches);
+  }
 
   @override
   void dispose() {
@@ -130,6 +162,22 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       );
       return;
     }
+
+    // Add to recent searches (avoid duplicates)
+    setState(() {
+      // Remove existing entry if it exists
+      recentSearches.removeWhere((search) =>
+        search['from'] == from && search['to'] == to);
+
+      // Add to the beginning
+      recentSearches.insert(0, {'from': from, 'to': to});
+
+      // Keep only the last 5 searches
+      if (recentSearches.length > 5) {
+        recentSearches.removeLast();
+      }
+    });
+    _saveRecentSearches();
 
     Navigator.push(
       context,
@@ -522,120 +570,35 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            // Quick Stats
-            Text(
-              'Quick Stats',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Consumer<BusProvider>(
-              builder: (context, busProvider, _) {
-                return Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
+            // Recent Searches
+            if (recentSearches.isEmpty)
+              const Text('No recent searches')
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Recent Searches', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  ...recentSearches.map((search) {
+                    return Card(
+                      elevation: 2,
+                      child: ListTile(
+                        leading: const Icon(Icons.history, size: 32),
+                        title: Text('${search['from']} → ${search['to']}', style: const TextStyle(fontSize: 16)),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const BusListScreen(initialFilter: 'active'),
-                            ),
-                          );
+                          _fromController.text = search['from']!;
+                          _toController.text = search['to']!;
+                          setState(() {
+                            _selectedFromStation = search['from'];
+                            _selectedToStation = search['to'];
+                          });
+                          _searchBuses();
                         },
-                        child: _StatCard(
-                          title: 'Active Buses',
-                          value: busProvider.activeBuses.length.toString(),
-                          icon: Icons.directions_bus,
-                          color: AppColors.success,
-                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _StatCard(
-                        title: 'Total Stations',
-                        value: busProvider.stations.length.toString(),
-                        icon: Icons.location_on,
-                        color: AppColors.warning,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-            // Active Buses List
-            Consumer<BusProvider>(
-              builder: (context, busProvider, _) {
-                final buses = busProvider.activeBuses;
-                if (buses.isEmpty) {
-                  return const Text('No active buses available');
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Active Buses', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    ...buses.map((bus) {
-                      final busProvider = Provider.of<BusProvider>(context, listen: false);
-
-                      // Get station names
-                      final fromStation = busProvider.stations.firstWhere(
-                        (station) => station.id == bus.fromStationId,
-                        orElse: () => StationModel(
-                          id: '',
-                          name: bus.fromStationId ?? 'Unknown',
-                          address: '',
-                          latitude: 0,
-                          longitude: 0,
-                          routeIds: [],
-                          createdAt: DateTime.now(),
-                        ),
-                      );
-
-                      final toStation = busProvider.stations.firstWhere(
-                        (station) => station.id == bus.toStationId,
-                        orElse: () => StationModel(
-                          id: '',
-                          name: bus.toStationId ?? 'Unknown',
-                          address: '',
-                          latitude: 0,
-                          longitude: 0,
-                          routeIds: [],
-                          createdAt: DateTime.now(),
-                        ),
-                      );
-
-                      return Card(
-                        elevation: 2,
-                        child: ListTile(
-                          leading: const Icon(Icons.directions_bus, size: 32),
-                          title: Text('${fromStation.name} → ${toStation.name}', style: const TextStyle(fontSize: 16)),
-                          subtitle: Text(
-                            'Bus: ${bus.busNumber} • Seats: ${bus.capacity - (bus.currentPassengers ?? 0)} available • Fare: ₹${bus.busFare.toStringAsFixed(0)}',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          trailing: Text(
-                            bus.status.toUpperCase(),
-                            style: TextStyle(fontSize: 12, color: bus.isActive ? AppColors.success : AppColors.warning),
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const BusListScreen(initialFilter: 'active'),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    }),
-                  ],
-                );
-              },
-            ),
+                    );
+                  }),
+                ],
+              ),
           ],
         ),
       ),

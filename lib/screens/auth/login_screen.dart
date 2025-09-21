@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/auth_provider.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/providers/auth_provider.dart';
+import 'package:omnitrack/utils/constants.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -55,8 +55,21 @@ class _LoginScreenState extends State<LoginScreen> {
         gravity: ToastGravity.BOTTOM,
       );
     } else {
+      String errorMessage = authProvider.error ?? 'An error occurred';
+      // Convert Firebase error codes to user-friendly messages
+      if (errorMessage.contains('wrong-password') ||
+          errorMessage.contains('user-not-found') ||
+          errorMessage.contains('invalid-credential')) {
+        errorMessage = 'Invalid email or password';
+      } else if (errorMessage.contains('email-already-in-use')) {
+        errorMessage = 'Email is already registered';
+      } else if (errorMessage.contains('weak-password')) {
+        errorMessage = 'Password is too weak';
+      } else if (errorMessage.contains('invalid-email')) {
+        errorMessage = 'Invalid email format';
+      }
       Fluttertoast.showToast(
-        msg: authProvider.error ?? 'An error occurred',
+        msg: errorMessage,
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
       );

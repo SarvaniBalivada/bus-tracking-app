@@ -1,7 +1,7 @@
-# Bus Tracking App UI and Functionality Enhancement Plan
+# OmniTrack UI and Functionality Enhancement Plan
 
 ## Overview
-This plan outlines the enhancements to improve the bus tracking app's UI, add Google Maps integration, implement proper bus search functionality, and refine admin portal features.
+This plan outlines the enhancements to improve OmniTrack's UI, add Google Maps integration, implement proper bus search functionality, and refine admin portal features.
 
 ## Current State Analysis
 - **Flutter app** with Firebase backend

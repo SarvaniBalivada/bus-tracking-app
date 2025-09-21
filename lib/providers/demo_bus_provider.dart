@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/models/station_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/models/station_model.dart';
+import 'package:omnitrack/utils/constants.dart';
 
 class DemoBusProvider extends ChangeNotifier {
   List<BusModel> _buses = [];

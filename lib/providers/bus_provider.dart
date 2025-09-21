@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/models/station_model.dart';
-import 'package:bus_tracking_app/models/route_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/models/station_model.dart';
+import 'package:omnitrack/models/route_model.dart';
+import 'package:omnitrack/utils/constants.dart';
 
 class BusProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

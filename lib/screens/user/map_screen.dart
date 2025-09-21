@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/utils/constants.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -140,8 +140,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bus ${widget.busId ?? 'Location'}'),
-        backgroundColor: AppColors.primaryColor,
+        elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

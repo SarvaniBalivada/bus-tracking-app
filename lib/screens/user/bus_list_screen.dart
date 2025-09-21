@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/models/station_model.dart';
-import 'package:bus_tracking_app/screens/user/map_screen.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/providers/auth_provider.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/models/station_model.dart';
+import 'package:omnitrack/screens/user/map_screen.dart';
+import 'package:omnitrack/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math' as math;
 
@@ -779,8 +780,7 @@ class _BusListScreenState extends State<BusListScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Bus List'),
-            backgroundColor: AppColors.primaryColor,
+            elevation: 0,
             actions: [
               PopupMenuButton<String>(
                 onSelected: (value) => setState(() => _filter = value),
@@ -804,7 +804,6 @@ class _BusListScreenState extends State<BusListScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                color: Colors.grey[50],
                 child: Column(
                   children: [
                     Row(

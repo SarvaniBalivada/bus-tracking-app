@@ -1,6 +1,6 @@
-# Bus Tracking App
+# OmniTrack
 
-A comprehensive Flutter-based bus tracking system with real-time location tracking, admin management, and user-friendly interface.
+OmniTrack - A comprehensive Flutter-based bus tracking system with real-time location tracking, admin management, and user-friendly interface.
 
 ## Features
 

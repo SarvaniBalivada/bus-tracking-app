@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:bus_tracking_app/models/user_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/models/user_model.dart';
+import 'package:omnitrack/utils/constants.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;

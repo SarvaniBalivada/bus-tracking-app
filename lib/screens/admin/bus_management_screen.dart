@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/models/station_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/models/station_model.dart';
+import 'package:omnitrack/utils/constants.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class BusManagementScreen extends StatefulWidget {
@@ -140,7 +140,6 @@ class _BusManagementScreenState extends State<BusManagementScreen> {
     final busProvider = Provider.of<BusProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.adminDashboard),
         backgroundColor: AppColors.primaryColor,
       ),
       body: SingleChildScrollView(
@@ -308,43 +307,6 @@ class _BusManagementScreenState extends State<BusManagementScreen> {
                             },
                           ),
                           const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.blue.shade200),
-                            ),
-                            child: const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '📝 Route Description Guide:',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  '• Only intermediate stations: Station A -> Station B -> Station C',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  '• Example: "Bhimavaram -> Vizag -> Tekkali"',
-                                  style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  '• From/To stations come from the station fields above',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  '• Timeline will show: From → Intermediates → To',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 16),

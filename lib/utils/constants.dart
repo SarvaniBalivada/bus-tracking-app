@@ -51,11 +51,11 @@ class AppColors {
 }
 
 class AppStrings {
-  static const String appName = 'Bus Tracking App';
-  static const String loginTitle = 'Welcome Back';
-  static const String loginSubtitle = 'Sign in to continue';
+  static const String appName = 'OmniTrack';
+  static const String loginTitle = 'Welcome to OmniTrack';
+  static const String loginSubtitle = 'Your journey starts here';
   static const String adminDashboard = 'Admin Dashboard';
-  static const String userDashboard = 'Bus Tracking';
+  static const String userDashboard = 'OmniTrack';
   
   // Firebase collection names
   static const String usersCollection = 'users';

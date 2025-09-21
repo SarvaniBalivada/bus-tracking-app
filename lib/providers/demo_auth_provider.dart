@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:bus_tracking_app/models/user_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/models/user_model.dart';
+import 'package:omnitrack/utils/constants.dart';
 
 class DemoAuthProvider extends ChangeNotifier {
   UserModel? _user;

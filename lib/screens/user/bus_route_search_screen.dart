@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/models/bus_model.dart';
-import 'package:bus_tracking_app/models/station_model.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
-import 'package:bus_tracking_app/screens/user/bus_list_screen.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/models/bus_model.dart';
+import 'package:omnitrack/models/station_model.dart';
+import 'package:omnitrack/utils/constants.dart';
+import 'package:omnitrack/screens/user/bus_list_screen.dart';
 
 class BusRouteSearchScreen extends StatefulWidget {
   const BusRouteSearchScreen({super.key});

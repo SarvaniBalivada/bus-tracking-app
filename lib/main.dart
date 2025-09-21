@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:bus_tracking_app/firebase_options.dart';
-import 'package:bus_tracking_app/providers/auth_provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/screens/auth/login_screen.dart';
-import 'package:bus_tracking_app/screens/admin/admin_dashboard.dart';
-import 'package:bus_tracking_app/screens/user/user_dashboard.dart';
-import 'package:bus_tracking_app/screens/user/bus_route_search_screen.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/firebase_options.dart';
+import 'package:omnitrack/providers/auth_provider.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/screens/auth/login_screen.dart';
+import 'package:omnitrack/screens/admin/admin_dashboard.dart';
+import 'package:omnitrack/screens/user/user_dashboard.dart';
+import 'package:omnitrack/screens/user/bus_route_search_screen.dart';
+import 'package:omnitrack/utils/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BusProvider()),
       ],
       child: MaterialApp(
-        title: 'Bus Tracking App',
+        title: 'OmniTrack',
         theme: ThemeData(
           primaryColor: AppColors.primaryColor,
           primaryColorLight: AppColors.primaryLight,

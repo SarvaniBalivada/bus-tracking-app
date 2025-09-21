@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bus_tracking_app/providers/bus_provider.dart';
-import 'package:bus_tracking_app/screens/user/map_screen.dart';
-import 'package:bus_tracking_app/utils/constants.dart';
+import 'package:omnitrack/providers/bus_provider.dart';
+import 'package:omnitrack/screens/user/map_screen.dart';
+import 'package:omnitrack/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BusTrackingScreen extends StatefulWidget {
